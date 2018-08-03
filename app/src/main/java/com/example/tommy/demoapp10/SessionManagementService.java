@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,22 +24,22 @@ public class SessionManagementService extends Service {
     private DatabaseReference serverRef = databaseReference.child("stream_servers").child("server1");
     private DatabaseReference sessionRef;
 
-    private Session currentSession;
+    private Session currentSession = null;
+    private boolean isSessionActive = false;
     private boolean isBroadcasting = false;
 
     public SessionListener sessionListener = null;
 
-    public class StreamServer {
-        public String IP, app_names;
-        boolean in_use, req_auth;
-    }
+
+    public final int CREATE_FAIL = 0x0,
+                    ALREADY_EXIST = 0x1;
 
 
     public interface SessionListener {
-        public void onSessionCreated();
-        public void onSessionCreateFailed();
-        public void onStreamAccepted();
-        public void onStreamDenied();
+        public void onSessionCreated(Session createdSession);
+        public void onSessionCreateFailed(int result_code, Session session);
+        public void onBroadcastAccepted();
+        public void onBroadcastDenied();
         public void onSessionDestroyed();
 
         public void onSessionConnected();
@@ -62,11 +61,19 @@ public class SessionManagementService extends Service {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
     public void createSession(final String sessionName) {
+        if (isSessionActive && currentSession != null) {
+            sessionListener.onSessionCreateFailed(ALREADY_EXIST, currentSession);
+        }
 
         serverRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -88,20 +95,46 @@ public class SessionManagementService extends Service {
                 session.setHOST_ADDRESS(server.IP);
 
                 sessionRef.setValue(session);
+
+                isSessionActive = true;
                 currentSession = session;
-                sessionListener.onSessionCreated();
+                sessionListener.onSessionCreated(session);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                sessionListener.onSessionCreateFailed();
+                sessionListener.onSessionCreateFailed(CREATE_FAIL, null);
             }
         });
+    }
 
+    public void requestBroadcast() {
+        serverRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                StreamServer server = dataSnapshot.getValue(StreamServer.class);
+                assert server != null;
+                if (!server.in_use) {
+                    serverRef.child("in_use").setValue("true");
+                    isBroadcasting = true;
+                    sessionListener.onBroadcastAccepted();
+                } else {
+                    sessionListener.onBroadcastDenied();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                sessionListener.onBroadcastDenied();
+            }
+        });
+    }
+
+    public void finishBroadcast() {
+        serverRef.child("in_use").setValue("false");
+    }
+
+    public void endSession(Session session) {
 
     }
 
-    public Session getCurrentSession() {
-        return currentSession;
-    }
 }

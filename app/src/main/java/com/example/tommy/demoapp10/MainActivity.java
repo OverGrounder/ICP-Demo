@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity{
             sessionManagementService.setSessionListener(new SessionManagementService.SessionListener() {
 
                 @Override
-                public void onSessionCreated() {
+                public void onSessionCreated(Session createdSession) {
 
                 }
 
@@ -84,12 +84,12 @@ public class MainActivity extends AppCompatActivity{
                 }
 
                 @Override
-                public void onStreamAccepted() {
+                public void onBroadcastAccepted() {
 
                 }
 
                 @Override
-                public void onStreamDenied() {
+                public void onBroadcastDenied() {
 
                 }
 
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity{
                 }
 
                 @Override
-                public void onSessionCreateFailed() {
+                public void onSessionCreateFailed(int result_code, Session session) {
 
                 }
             });
@@ -116,5 +116,9 @@ public class MainActivity extends AppCompatActivity{
         }
     };
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
 }

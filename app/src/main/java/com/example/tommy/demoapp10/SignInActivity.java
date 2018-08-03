@@ -45,6 +45,7 @@ public class SignInActivity extends AppCompatActivity {
                 attemptSignIn();
             }
         });
+
     }
 
     private void attemptSignIn() {
@@ -119,6 +120,11 @@ public class SignInActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     private boolean isEmailValid(String email) {

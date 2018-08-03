@@ -1,6 +1,7 @@
 package com.example.tommy.demoapp10;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -18,8 +20,10 @@ public class SessionCreateActivity extends AppCompatActivity {
     private String SESSION_NAME;
     private String USER_NAME = "Test_Seller";
     private String USER_EMAIL;
+    private boolean creating = false;
 
-    private EditText SessionNameEdit;
+    private EditText sessionNameEdit;
+    private ProgressBar spinner;
     private Button startButton;
 
     private SessionManagementService sessionManagementService;
@@ -39,28 +43,39 @@ public class SessionCreateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_create);
+        spinner = findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
 
         Intent intent = new Intent();
         USER_EMAIL = intent.getStringExtra("user_email");
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, SessionManagementService.class);
+        bindService(intent, sessionServiceConnection, Context.BIND_AUTO_CREATE);
+
         // Reference widget ID
-        SessionNameEdit = (EditText)findViewById(R.id.session_name);
+        sessionNameEdit = (EditText)findViewById(R.id.session_name);
 
         startButton = (Button)findViewById(R.id.start);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (SessionNameEdit.getText().toString().equals("")) {
-                    Toast.makeText(SessionCreateActivity.this, "기입이 완료되지 않았습니다.", Toast.LENGTH_SHORT);
+                if (creating) return;
+                spinner.setVisibility(View.VISIBLE);
+                if (sessionNameEdit.getText().toString().equals("")) {
+                    Toast.makeText(SessionCreateActivity.this, "세션 이름을 입력해주세요", Toast.LENGTH_SHORT);
                     return;
                 }
+                creating = true;
 
-                SESSION_NAME = SessionNameEdit.getText().toString();
+                SESSION_NAME = sessionNameEdit.getText().toString();
 
                 sessionManagementService.createSession(SESSION_NAME);
-
-                /* TODO: Wait Until onSessionCreated() or onSessionCreateFailed() ? */
 
                 ChatFragment cf = new ChatFragment();
                 Bundle bundle = new Bundle();
@@ -84,6 +99,15 @@ public class SessionCreateActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (sessionServiceBound) {
+            unbindService(sessionServiceConnection);
+            sessionServiceBound = false;
+        }
+    }
+
 
     private ServiceConnection sessionServiceConnection = new ServiceConnection() {
         @Override
@@ -95,8 +119,11 @@ public class SessionCreateActivity extends AppCompatActivity {
             sessionManagementService.setSessionListener(new SessionManagementService.SessionListener() {
 
                 @Override
-                public void onSessionCreated() {
-
+                public void onSessionCreated(Session createdSession) {
+                    Intent intent = new Intent(SessionCreateActivity.this, SessionSetupActivity.class);
+                    intent.putExtra("session", createdSession);
+                    spinner.setVisibility(View.GONE);
+                    startActivity(intent);
                 }
 
                 @Override
@@ -105,12 +132,12 @@ public class SessionCreateActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onStreamAccepted() {
+                public void onBroadcastAccepted() {
 
                 }
 
                 @Override
-                public void onStreamDenied() {
+                public void onBroadcastDenied() {
 
                 }
 
@@ -125,7 +152,7 @@ public class SessionCreateActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onSessionCreateFailed() {
+                public void onSessionCreateFailed(int result_code, Session session) {
 
                 }
             });

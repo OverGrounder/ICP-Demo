@@ -37,7 +37,9 @@
         <service
             android:name=".SessionManagementService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".SessionSetupActivity"></activity>
     </application>
 
 </manifest>
