@@ -65,10 +65,10 @@ public class FindSessionActivity extends AppCompatActivity {
                         Intent cisIntent = new Intent(FindSessionActivity.this, CustomerInSessionActivity.class);
                         cisIntent.putExtra("port_num", mSession.getPORT_NUM());
                         cisIntent.putExtra("host_address", mSession.getHOST_ADDRESS());
-                        cisIntent.putExtra("stream_name", mSession.getSTREAM_NAME());
+                        cisIntent.putExtra("stream_name", mSession.getSTREAM_KEY());
                         cisIntent.putExtra("application_name", mSession.getAPPLICATION_NAME());
                         cisIntent.putExtra("user_name", user_name);
-                        cisIntent.putExtra("chat_name", mSession.getCHAT_NAME());
+                        cisIntent.putExtra("chat_name", mSession.getSESSION_NAME());
                         cisIntent.putExtra("user_email", user_email);
 
                         // CustomerInSessionActivity 시작

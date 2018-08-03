@@ -50,8 +50,8 @@ public class SellerMainFragment extends Fragment {
         broadcastBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Start SessionSetupActivity
-                Intent ssIntent = new Intent(getActivity(), SessionSetupActivity.class);
+                // Start SessionCreateActivity
+                Intent ssIntent = new Intent(getActivity(), SessionCreateActivity.class);
                 ssIntent.putExtra("user_email", userEmail);
                 startActivity(ssIntent);
             }
