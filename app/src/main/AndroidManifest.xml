@@ -34,15 +34,12 @@
             android:name=".SessionManagementService"
             android:enabled="true"
             android:exported="true" />
-        <service
-            android:name=".SessionManagementService"
-            android:enabled="true"
-            android:exported="true" />
 
         <activity android:name=".SessionSetupActivity" />
         <activity
             android:name=".SignUpActivity"
-            android:label="@string/title_activity_sign_up"></activity>
+            android:label="@string/title_activity_sign_up" />
+        <activity android:name=".BroadcastActivity" />
     </application>
 
 </manifest>

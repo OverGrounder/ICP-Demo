@@ -21,7 +21,7 @@ public class SessionManagementService extends Service {
     private final IBinder mBinder = new SessionManagementBinder();
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference =firebaseDatabase.getReference();
-    /* Getting serverRef can be modified for later service scaling. */
+    /* The way of getting serverRef can be modified for later service scaling. */
     private DatabaseReference serverRef = databaseReference.child("stream_servers").child("server1");
     private DatabaseReference sessionRef;
 

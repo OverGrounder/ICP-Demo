@@ -1,16 +1,26 @@
 package com.example.tommy.demoapp10;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Session implements Serializable {
+public class Session implements Parcelable {
     private String port_NUM;
     private String session_NAME;
     private String stream_KEY;
     private String host_ADDRESS;
     private String application_NAME;
-    public String SessionID;
+    public static final Creator<Session> CREATOR = new Creator<Session>() {
+        @Override
+        public Session createFromParcel(Parcel in) {
+            return new Session(in);
+        }
 
-    public Session(){}
+        @Override
+        public Session[] newArray(int size) {
+            return new Session[size];
+        }
+    };
+    private String SessionID;
     public Session (String port_num, String session_name, String stream_name, String host_address,
                     String application_name) {
 
@@ -20,6 +30,18 @@ public class Session implements Serializable {
         this.port_NUM = port_num;
         this.stream_KEY = stream_name;
 
+    }
+
+    Session() {
+    }
+
+    private Session(Parcel parcel) {
+        this.port_NUM = parcel.readString();
+        this.session_NAME = parcel.readString();
+        this.stream_KEY = parcel.readString();
+        this.host_ADDRESS = parcel.readString();
+        this.application_NAME = parcel.readString();
+        this.SessionID = parcel.readString();
     }
 
     public void setPORT_NUM(String port_NUM) { this.port_NUM = port_NUM; }
@@ -45,4 +67,18 @@ public class Session implements Serializable {
     }
 
     public String getUrl() { return "rtmp://" + host_ADDRESS + ":" + port_NUM + "/" + application_NAME + "/" + stream_KEY; }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.port_NUM);
+        parcel.writeString(this.stream_KEY);
+        parcel.writeString(this.application_NAME);
+        parcel.writeString(this.host_ADDRESS);
+        parcel.writeString(this.session_NAME);
+    }
 }
