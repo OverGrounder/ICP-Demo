@@ -34,12 +34,10 @@ public class SessionCreateActivity extends AppCompatActivity {
         return myConnection;
     }
 
-    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-    private DatabaseReference databaseReference =firebaseDatabase.getReference();
-
     public SessionCreateActivity() {
     }
 
+    @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_create);
@@ -83,18 +81,6 @@ public class SessionCreateActivity extends AppCompatActivity {
                 bundle.putString("user_name", USER_NAME);
                 bundle.putString("user_email", USER_EMAIL);
                 cf.setArguments(bundle);
-
-                // DB session 목록에 session 추가
-
-                /*
-                // 기입이 완료된 후, Start 버튼을 누르면 SellerSessionActivity 시작
-                Intent sisIntent = new Intent(SessionCreateActivity.this, SellerInSessionActivity.class);
-                sisIntent.putExtra("port_num", PORT_NUM);
-                sisIntent.putExtra("stream_name", STREAM_NAME);
-                sisIntent.putExtra("host_address", HOST_ADDRESS);
-                sisIntent.putExtra("application_name", APPLICATION_NAME);
-                startActivity(sisIntent);
-                */
             }
         });
     }

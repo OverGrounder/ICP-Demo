@@ -6,12 +6,20 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity{
-    public SessionManagementService sessionManagementService;
-    private boolean sessionServiceBound = false;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -24,6 +32,9 @@ public class MainActivity extends AppCompatActivity{
         String userEmail = intent.getStringExtra("user_email");
         String userPassword = intent.getStringExtra("user_password");
         boolean isSeller = intent.getBooleanExtra("isSeller", false);
+
+        if (isSeller) Log.d("ICP_Main", "is Seller!");
+        else Log.d("ICP_Main", "is not Seller!");
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
@@ -51,74 +62,18 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, SessionManagementService.class);
-        bindService(intent, sessionServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (sessionServiceBound) {
-            unbindService(sessionServiceConnection);
-            sessionServiceBound = false;
-        }
     }
 
-    private ServiceConnection sessionServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            SessionManagementService.SessionManagementBinder binder = (SessionManagementService.SessionManagementBinder) service;
-            sessionManagementService = binder.getService();
-            sessionServiceBound = true;
-
-            sessionManagementService.setSessionListener(new SessionManagementService.SessionListener() {
-
-                @Override
-                public void onSessionCreated(Session createdSession) {
-
-                }
-
-                @Override
-                public void onSessionConnected() {
-
-                }
-
-                @Override
-                public void onBroadcastAccepted() {
-
-                }
-
-                @Override
-                public void onBroadcastDenied() {
-
-                }
-
-                @Override
-                public void onSessionDisconnected() {
-
-                }
-
-                @Override
-                public void onSessionDestroyed() {
-
-                }
-
-                @Override
-                public void onSessionCreateFailed(int result_code, Session session) {
-
-                }
-            });
-
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            sessionServiceBound = false;
-        }
-    };
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mAuth.signOut();
     }
 
 }

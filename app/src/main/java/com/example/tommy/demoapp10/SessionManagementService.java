@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -36,14 +37,14 @@ public class SessionManagementService extends Service {
 
 
     public interface SessionListener {
-        public void onSessionCreated(Session createdSession);
-        public void onSessionCreateFailed(int result_code, Session session);
-        public void onBroadcastAccepted();
-        public void onBroadcastDenied();
-        public void onSessionDestroyed();
+        void onSessionCreated(Session createdSession);
+        void onSessionCreateFailed(int result_code, Session session);
+        void onBroadcastAccepted();
+        void onBroadcastDenied();
+        void onSessionDestroyed();
 
-        public void onSessionConnected();
-        public void onSessionDisconnected();
+        void onSessionConnected();
+        void onSessionDisconnected();
     }
 
     public void setSessionListener(SessionListener listener) {
@@ -77,10 +78,11 @@ public class SessionManagementService extends Service {
 
         serverRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 StreamServer server = dataSnapshot.getValue(StreamServer.class);
 
                 String sessionKey = databaseReference.child("session").push().getKey();
+                assert sessionKey != null;
                 sessionRef = databaseReference.child("session").child(sessionKey);
 
                 DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.KOREA);
@@ -102,7 +104,7 @@ public class SessionManagementService extends Service {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 sessionListener.onSessionCreateFailed(CREATE_FAIL, null);
             }
         });
@@ -111,7 +113,7 @@ public class SessionManagementService extends Service {
     public void requestBroadcast() {
         serverRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 StreamServer server = dataSnapshot.getValue(StreamServer.class);
                 assert server != null;
                 if (!server.in_use) {
@@ -123,7 +125,7 @@ public class SessionManagementService extends Service {
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 sessionListener.onBroadcastDenied();
             }
         });

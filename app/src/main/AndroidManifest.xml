@@ -39,7 +39,10 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".SessionSetupActivity"></activity>
+        <activity android:name=".SessionSetupActivity" />
+        <activity
+            android:name=".SignUpActivity"
+            android:label="@string/title_activity_sign_up"></activity>
     </application>
 
 </manifest>
