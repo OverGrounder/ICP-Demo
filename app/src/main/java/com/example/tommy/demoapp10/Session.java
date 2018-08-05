@@ -9,6 +9,8 @@ public class Session implements Parcelable {
     private String stream_KEY;
     private String host_ADDRESS;
     private String application_NAME;
+    private String SessionID;
+
     public static final Creator<Session> CREATOR = new Creator<Session>() {
         @Override
         public Session createFromParcel(Parcel in) {
@@ -20,9 +22,8 @@ public class Session implements Parcelable {
             return new Session[size];
         }
     };
-    private String SessionID;
     public Session (String port_num, String session_name, String stream_name, String host_address,
-                    String application_name) {
+                    String application_name, String SessionID) {
 
         this.application_NAME = application_name;
         this.session_NAME = session_name;

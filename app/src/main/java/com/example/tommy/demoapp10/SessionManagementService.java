@@ -15,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -25,6 +26,7 @@ public class SessionManagementService extends Service {
     /* The way of getting serverRef can be modified for later service scaling. */
     private DatabaseReference serverRef = databaseReference.child("stream_servers").child("server1");
     private DatabaseReference sessionRef;
+    private DatabaseReference sessionListRef = databaseReference.child("active_sessions");
 
     private Session currentSession = null;
     private boolean isSessionActive = false;
@@ -113,6 +115,7 @@ public class SessionManagementService extends Service {
     }
 
     public void requestBroadcast() {
+        if (currentSession == null) return;
         serverRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -131,10 +134,14 @@ public class SessionManagementService extends Service {
                 sessionListener.onBroadcastDenied();
             }
         });
+        ArrayList<Session> activeSessions = new ArrayList<Session>();
+        activeSessions.add(currentSession);
+        sessionListRef.setValue(activeSessions);
     }
 
     public void finishBroadcast() {
         serverRef.child("in_use").setValue("false");
+        sessionListRef.setValue(new ArrayList<Session>());
     }
 
     public void endSession(Session session) {
