@@ -3,18 +3,12 @@ package com.example.tommy.demoapp10;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-// TODO: Add Product List
-// TODO: Add Session Date
-// TODO: Add Seller Name
-// TODO: Add Session Image
-
 public class Session implements Parcelable {
     private String port_NUM;
     private String session_NAME;
     private String stream_KEY;
     private String host_ADDRESS;
     private String application_NAME;
-
     public static final Creator<Session> CREATOR = new Creator<Session>() {
         @Override
         public Session createFromParcel(Parcel in) {

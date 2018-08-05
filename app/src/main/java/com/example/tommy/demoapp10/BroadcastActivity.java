@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.pedro.encoder.input.video.CameraOpenException;
 import com.pedro.rtplibrary.rtmp.RtmpCamera1;
 import com.pedro.rtplibrary.view.OpenGlView;
+
 import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
