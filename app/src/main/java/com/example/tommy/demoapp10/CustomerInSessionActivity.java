@@ -18,13 +18,10 @@ public class CustomerInSessionActivity extends AppCompatActivity
         implements ChatFragment.CustomOnClickListener {
     final private static String TAG = CustomerInSessionActivity.class.getSimpleName();
 
-    private int PORT_NUM;
-    private String STREAM_NAME;
-    private String HOST_ADDRESS;
-    private String APPLICATION_NAME;
+    private String SESSION_NAME;
     private String USER_NAME;
     private String USER_EMAIL;
-    private String CHAT_NAME;
+    private String URL;
 
     private FrameLayout chatContainer;
     private FrameLayout streamSubscribeContainer;
@@ -44,25 +41,20 @@ public class CustomerInSessionActivity extends AppCompatActivity
 
         // Get Session and User Info
         Intent intent = getIntent();
-        STREAM_NAME = intent.getStringExtra("stream_name");
-        HOST_ADDRESS = intent.getStringExtra("host_address");
-        APPLICATION_NAME = intent.getStringExtra("application_name");
+        SESSION_NAME = intent.getStringExtra("session_name");
+        URL = intent.getStringExtra("url");
         USER_EMAIL = intent.getStringExtra("user_email");
         USER_NAME = intent.getStringExtra("user_name");
-        PORT_NUM = intent.getIntExtra("port_num", 1935);
-        CHAT_NAME = intent.getStringExtra("chat_name");
 
         Bundle chatBundle = new Bundle();
-        chatBundle.putString("chat_name", CHAT_NAME);
+        chatBundle.putString("chat_name", SESSION_NAME);
         chatBundle.putString("user_email", USER_EMAIL);
         chatBundle.putString("user_name", USER_NAME);
         cf.setArguments(chatBundle);
 
         Bundle streamBundle = new Bundle();
-        streamBundle.putString("stream_name", STREAM_NAME);
-        streamBundle.putString("application_name", APPLICATION_NAME);
-        streamBundle.putString("host_address", HOST_ADDRESS);
-        streamBundle.putInt("port_num", PORT_NUM);
+        streamBundle.putString("url", URL);
+        ssf.setArguments(streamBundle);
 
         chatContainer = (FrameLayout)findViewById(R.id.container_chat);
         streamSubscribeContainer = (FrameLayout)findViewById(R.id.container_stream_subscribe);
