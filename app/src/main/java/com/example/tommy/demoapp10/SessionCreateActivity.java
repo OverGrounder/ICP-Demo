@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -41,7 +42,11 @@ public class SessionCreateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session_create);
-        spinner = findViewById(R.id.progressBar1);
+        spinner = findViewById(R.id.create_session_progressBar);
+        // Reference widget ID
+        sessionNameEdit = (EditText)findViewById(R.id.create_session_name);
+
+        startButton = (Button)findViewById(R.id.create_session_btn);
         spinner.setVisibility(View.GONE);
 
         Intent intent = new Intent();
@@ -52,37 +57,9 @@ public class SessionCreateActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, SessionManagementService.class);
+        Intent intent = new Intent(SessionCreateActivity.this, SessionManagementService.class);
         bindService(intent, sessionServiceConnection, Context.BIND_AUTO_CREATE);
-
-        // Reference widget ID
-        sessionNameEdit = (EditText)findViewById(R.id.session_name);
-
-        startButton = (Button)findViewById(R.id.start);
-
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (creating) return;
-                spinner.setVisibility(View.VISIBLE);
-                if (sessionNameEdit.getText().toString().equals("")) {
-                    Toast.makeText(SessionCreateActivity.this, "세션 이름을 입력해주세요", Toast.LENGTH_SHORT);
-                    return;
-                }
-                creating = true;
-
-                SESSION_NAME = sessionNameEdit.getText().toString();
-
-                sessionManagementService.createSession(SESSION_NAME);
-
-                ChatFragment cf = new ChatFragment();
-                Bundle bundle = new Bundle();
-                bundle.putString("chat_name", SESSION_NAME);
-                bundle.putString("user_name", USER_NAME);
-                bundle.putString("user_email", USER_EMAIL);
-                cf.setArguments(bundle);
-            }
-        });
+        Log.d("ICP_SCA", "Trying to bind Service");
     }
 
     @Override
@@ -98,9 +75,27 @@ public class SessionCreateActivity extends AppCompatActivity {
     private ServiceConnection sessionServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d("ICP_SCA", "SessionService Connected");
             SessionManagementService.SessionManagementBinder binder = (SessionManagementService.SessionManagementBinder) service;
             sessionManagementService = binder.getService();
             sessionServiceBound = true;
+
+            startButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (creating) return;
+                    spinner.setVisibility(View.VISIBLE);
+                    if (sessionNameEdit.getText().toString().equals("")) {
+                        Toast.makeText(SessionCreateActivity.this, "세션 이름을 입력해주세요", Toast.LENGTH_SHORT);
+                        return;
+                    }
+                    creating = true;
+
+                    SESSION_NAME = sessionNameEdit.getText().toString();
+
+                    sessionManagementService.createSession(SESSION_NAME);
+                }
+            });
 
             sessionManagementService.setSessionListener(new SessionManagementService.SessionListener() {
 
@@ -108,6 +103,9 @@ public class SessionCreateActivity extends AppCompatActivity {
                 public void onSessionCreated(Session createdSession) {
                     Intent intent = new Intent(SessionCreateActivity.this, SessionSetupActivity.class);
                     intent.putExtra("session", createdSession);
+                    intent.putExtra("chat_name", SESSION_NAME);
+                    intent.putExtra("user_name", USER_NAME);
+                    intent.putExtra("user_email", USER_EMAIL);
                     spinner.setVisibility(View.GONE);
                     startActivity(intent);
                 }

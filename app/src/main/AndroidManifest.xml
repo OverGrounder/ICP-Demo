@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- some devices need it -->
+    <!--some devices need it-->
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera2.full" />
     <uses-feature android:name="android.hardware.camera2.autofocus" />
@@ -25,21 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
-        <activity android:name=".FindSessionActivity" />
-        <activity android:name=".CustomerInSessionActivity" />
-        <activity android:name=".SessionCreateActivity" />
-
-        <service
-            android:name=".SessionManagementService"
-            android:enabled="true"
-            android:exported="true" />
-
-        <activity android:name=".SessionSetupActivity" />
-        <activity
-            android:name=".SignUpActivity"
-            android:label="@string/title_activity_sign_up" />
-        <activity android:name=".BroadcastActivity" />
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".BroadcastActivity"/>
+        <activity android:name=".SignUpActivity"/>
+        <activity android:name=".SessionCreateActivity"/>
+        <activity android:name=".CustomerInSessionActivity"/>
+        <activity android:name=".SessionSetupActivity"/>
     </application>
 
 </manifest>

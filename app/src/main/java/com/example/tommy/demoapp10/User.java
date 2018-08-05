@@ -2,6 +2,8 @@ package com.example.tommy.demoapp10;
 
 import java.io.Serializable;
 
+// TODO: Add User's Bitmap (프로필 사진) -> 최소 seller는 필요.
+
 public class User implements Serializable {
     private String name, nickname, address;
     private Boolean isSeller;

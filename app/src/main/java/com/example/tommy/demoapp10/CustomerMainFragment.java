@@ -1,22 +1,57 @@
 package com.example.tommy.demoapp10;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 
 public class CustomerMainFragment extends Fragment {
     private String userEmail;
     private String userPassword;
 
+    //Activity
+    Activity mActivity;
+
+    // Context
+    Context mContext;
+
     // UI referencers
-    private Button playButton;
-    private Button shoppingBasketBtn;
-    private Button infoButton;
-    private Button homePageBtn;
+
+    SearchView searchView;
+    TextView liveTextView;
+    ImageView sessionThumbNailView;
+
+    // Seller List RecyclerView;
+    RecyclerView sellerListView;
+
+    // Seller Session List RecyclerView
+    RecyclerView sellerSessionListView;
+    RecyclerView.Adapter<SellerSessionViewAdapter.ViewHolder> sellerSessionViewAdapter;
+
+    // Session Product List RecyclerView
+    RecyclerView sessionProductListView;
+
+
+    // RecyclerView LayoutManager
+    RecyclerView.LayoutManager layoutManager;
+
+    // Firebase
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference databaseReference =firebaseDatabase.getReference();
 
     public CustomerMainFragment(){};
 
@@ -26,28 +61,21 @@ public class CustomerMainFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_customer_main, container, false);
 
-        // UI reference
-        playButton = view.findViewById(R.id.cutomer_main_play_btn);
-        shoppingBasketBtn = view.findViewById(R.id.customer_main_sb);
-        infoButton = view.findViewById(R.id.customer_main_info_btn);
-        homePageBtn = view.findViewById(R.id.customer_main_hp_btn);
+        //Get Activity
+        mActivity = getActivity();
 
-        // Get argument
-        if (getArguments()!=null) {
-            userEmail = getArguments().getString("user_email");
-            userPassword = getArguments().getString("user_password");
-        }
+        // Get context
+        mContext = mActivity.getApplicationContext();
 
-        // OnClickListener
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Start FindSessionActivity
-                Intent fsIntent = new Intent(getActivity(), FindSessionActivity.class);
-                fsIntent.putExtra("user_email", userEmail);
-                startActivity(fsIntent);
-            }
-        });
+        sellerListView = (RecyclerView)view.findViewById(R.id.seller_list);
+        sellerSessionListView = (RecyclerView)view.findViewById(R.id.seller_session_list);
+        sessionProductListView = (RecyclerView)view.findViewById(R.id.session_product_list);
+
+        // Set ArrayLists
+        ArrayList<SellerSessionItem> sellerSessionItems = new ArrayList<>();
+
+
+
 
         return view;
     }

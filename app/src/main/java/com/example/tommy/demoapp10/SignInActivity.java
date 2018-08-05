@@ -73,6 +73,7 @@ public class SignInActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
 
         if (currentUser == null) {
             Log.d("ICP_SignIn", "No Auto-Login");
