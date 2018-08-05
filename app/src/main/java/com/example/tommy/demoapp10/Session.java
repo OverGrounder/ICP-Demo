@@ -76,9 +76,10 @@ public class Session implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(this.port_NUM);
-        parcel.writeString(this.stream_KEY);
-        parcel.writeString(this.application_NAME);
-        parcel.writeString(this.host_ADDRESS);
         parcel.writeString(this.session_NAME);
+        parcel.writeString(this.stream_KEY);
+        parcel.writeString(this.host_ADDRESS);
+        parcel.writeString(this.application_NAME);
+        parcel.writeString(this.SessionID);
     }
 }
