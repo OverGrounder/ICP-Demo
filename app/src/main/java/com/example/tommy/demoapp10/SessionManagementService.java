@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -68,7 +69,8 @@ public class SessionManagementService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        Log.d("ICP_SMS", "A service Bounded to this Service!");
+    return mBinder;
     }
 
     public void createSession(final String sessionName) {

@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.pedro.encoder.input.video.CameraOpenException;
@@ -20,8 +22,15 @@ import net.ossrs.rtmp.ConnectCheckerRtmp;
 public class BroadcastActivity extends AppCompatActivity
         implements ConnectCheckerRtmp, View.OnClickListener, SurfaceHolder.Callback {
     private String etUrl;
+    private String SESSION_NAME;
+    private String USER_NAME;
+    private String USER_EMAIL;
     private Button button;
     private RtmpCamera1 rtmpCamera1;
+
+    private FrameLayout chatContainer;
+
+    private ChatFragment cf = new ChatFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,13 @@ public class BroadcastActivity extends AppCompatActivity
         Session session = intent.getParcelableExtra("session");
         etUrl = session.getUrl();
 
+        Bundle chatBundle = new Bundle();
+        chatBundle.putString("chat_name", SESSION_NAME);
+        chatBundle.putString("user_email", USER_EMAIL);
+        chatBundle.putString("user_name", USER_NAME);
+        cf.setArguments(chatBundle);
+
+        chatContainer = (FrameLayout)findViewById(R.id.container_chat2);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_broadcast);
@@ -52,6 +68,11 @@ public class BroadcastActivity extends AppCompatActivity
             rtmpCamera1.enableVideo();
         }
         openGlView.getHolder().addCallback(this);
+
+        // Add ChatFragment
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.container_chat2, cf);
+        ft.commit();
     }
 
 
