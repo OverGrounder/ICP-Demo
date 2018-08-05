@@ -12,7 +12,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.signin.SignIn;
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,21 +32,34 @@ public class SignInActivity extends AppCompatActivity {
     private String user_email;
     private String user_password;
 
+    private Button mEmailSignInButton;
+    private Button mEmailSignUpButton;
+
     private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference =firebaseDatabase.getReference(), userRef;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth mAuth;
     private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signOut();
 
         // Set up the Sign in form
         mEmailView = findViewById(R.id.sign_in_email);
         mPasswordView = findViewById(R.id.sign_in_password);
 
-        Button mEmailSignUpButton = findViewById(R.id.email_sign_up_button);
+        mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptSignIn();
+            }
+        });
+
+        mEmailSignUpButton = findViewById(R.id.email_sign_up_button);
         mEmailSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -60,20 +75,17 @@ public class SignInActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser == null) {
-            Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
-            mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    attemptSignIn();
-                }
-            });
+            Log.d("ICP_SignIn", "No Auto-Login");
         }
         else {
+            Log.d("ICP_SignIn", "Auto-Login");
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
             userRef = databaseReference.child("users").child(firebaseUser.getUid());
+            Log.d("ICP_SignIn", "UID: " + userRef.getKey());
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d("ICP_SignIn", "Data Received!");
                     user = dataSnapshot.getValue(User.class);
 
                     // User info
@@ -95,6 +107,7 @@ public class SignInActivity extends AppCompatActivity {
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     // TODO: 토스트나 뭐 아무거로 알려주기
+                    Log.d("ICP_SignIn", "Auto Login Failed");
                     finish();
                 }
             });
@@ -103,6 +116,7 @@ public class SignInActivity extends AppCompatActivity {
 
     private void attemptSignIn() {
         // User info
+        Log.d("ICP_SignIn", "attemptSignIn");
         user_email = mEmailView.getText().toString();
         user_password = mPasswordView.getText().toString();
 
@@ -112,6 +126,7 @@ public class SignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            Log.d("ICP_SignIn", "Sign in successful");
                             userRef = databaseReference.child("users").child(firebaseUser.getUid());
                             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -132,15 +147,25 @@ public class SignInActivity extends AppCompatActivity {
                                 }
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    // TODO: 토스트나 뭐 아무거로 알려주기
                                     finish();
+                                    Toast.makeText(getApplicationContext(), "로그인에 실패했습니다. 1", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         } else {
-                            Toast.makeText(getApplicationContext(), "로그인에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "로그인에 실패했습니다. 2", Toast.LENGTH_SHORT).show();
                         }
                     }
-                });
+                }).addOnCanceledListener(this, new OnCanceledListener() {
+            @Override
+            public void onCanceled() {
+                Log.d("ICP_SignIn", "Sign in Cancelled");
+            }
+        }).addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("ICP_SignIn", "Sign in Failed");
+            }
+        });
     }
 
     @Override
