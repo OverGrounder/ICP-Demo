@@ -88,10 +88,6 @@ public class BroadcastActivity extends AppCompatActivity
             }
         });
 
-
-
-
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_broadcast);
         OpenGlView openGlView = findViewById(R.id.surfaceView);

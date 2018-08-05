@@ -9,7 +9,7 @@ public class Session implements Parcelable {
     private String stream_KEY;
     private String host_ADDRESS;
     private String application_NAME;
-    private String SessionID;
+    private String sessionID;
 
     public static final Creator<Session> CREATOR = new Creator<Session>() {
         @Override
@@ -42,7 +42,7 @@ public class Session implements Parcelable {
         this.stream_KEY = parcel.readString();
         this.host_ADDRESS = parcel.readString();
         this.application_NAME = parcel.readString();
-        this.SessionID = parcel.readString();
+        this.sessionID = parcel.readString();
     }
 
     public void setPORT_NUM(String port_NUM) { this.port_NUM = port_NUM; }
@@ -50,6 +50,10 @@ public class Session implements Parcelable {
     public void setHOST_ADDRESS(String host_ADDRESS) { this.host_ADDRESS=host_ADDRESS; }
     public void setSTREAM_KEY(String stream_NAME) { this.stream_KEY =stream_NAME; }
     public void setAPPLICATION_NAME(String application_NAME) { this.application_NAME = application_NAME; }
+
+    public void setSESSION_ID(String sessionID) {
+        this.sessionID = sessionID;
+    }
 
     public String getPORT_NUM() {
         return port_NUM;
@@ -67,6 +71,10 @@ public class Session implements Parcelable {
         return session_NAME;
     }
 
+    public String getSESSIONID() {
+        return sessionID;
+    }
+
     public String getUrl() { return "rtmp://" + host_ADDRESS + ":" + port_NUM + "/" + application_NAME + "/" + stream_KEY; }
 
     @Override
@@ -81,6 +89,6 @@ public class Session implements Parcelable {
         parcel.writeString(this.stream_KEY);
         parcel.writeString(this.host_ADDRESS);
         parcel.writeString(this.application_NAME);
-        parcel.writeString(this.SessionID);
+        parcel.writeString(this.sessionID);
     }
 }

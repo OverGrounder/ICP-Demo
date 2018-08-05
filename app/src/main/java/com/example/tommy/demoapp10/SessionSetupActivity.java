@@ -39,6 +39,10 @@ public class SessionSetupActivity extends AppCompatActivity {
                 }
 
                 @Override
+                public void onBindFinished() {
+                }
+
+                @Override
                 public void onSessionConnected() {
                 }
 
