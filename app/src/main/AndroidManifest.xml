@@ -26,7 +26,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"/>
-        <activity android:name=".FindSessionActivity"/>
+        <activity android:name=".BroadcastActivity"/>
+        <activity android:name=".SignUpActivity"/>
+        <activity android:name=".SessionCreateActivity"/>
         <activity android:name=".CustomerInSessionActivity"/>
         <activity android:name=".SessionSetupActivity"/>
     </application>

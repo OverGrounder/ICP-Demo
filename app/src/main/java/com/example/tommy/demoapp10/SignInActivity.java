@@ -1,33 +1,39 @@
 package com.example.tommy.demoapp10;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+        import android.support.annotation.NonNull;
+        import android.support.v7.app.AppCompatActivity;
+        import android.os.Bundle;
+        import android.text.TextUtils;
+        import android.util.Log;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
+        import android.widget.Toast;
+
+        import com.google.android.gms.signin.SignIn;
+        import com.google.android.gms.tasks.OnCompleteListener;
+        import com.google.android.gms.tasks.Task;
+        import com.google.firebase.auth.AuthResult;
+        import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.auth.FirebaseUser;
+        import com.google.firebase.database.DataSnapshot;
+        import com.google.firebase.database.DatabaseError;
+        import com.google.firebase.database.DatabaseReference;
+        import com.google.firebase.database.FirebaseDatabase;
+        import com.google.firebase.database.ValueEventListener;
 
 public class SignInActivity extends AppCompatActivity {
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] SELLER_DUMMY_CREDENTIALS = new String[]{
-            "tommy9773@naver.com:2016gkrqjs",
-            "gkadnflh@gmail.com:qlalfqjsgh1"
-    };
-
-    private static final String[] CUSTOMER_DUMMY_CREDENTIALS = new String[]{
-            "tommy9773@korea.ac.kr:2016gkrqjs",
-            "gkadnflh@naver.com:qlalfqjsgh1"
-    };
-
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
+    private String user_email;
+    private String user_password;
+
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference databaseReference =firebaseDatabase.getReference(), userRef;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,99 +41,110 @@ public class SignInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_in);
 
         // Set up the Sign in form
-        mEmailView = (EditText)findViewById(R.id.sign_in_email);
-        mPasswordView = (EditText)findViewById(R.id.sign_in_password);
+        mEmailView = findViewById(R.id.sign_in_email);
+        mPasswordView = findViewById(R.id.sign_in_password);
 
-        Button mEmailSignInButton = (Button)findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+        Button mEmailSignUpButton = findViewById(R.id.email_sign_up_button);
+        mEmailSignUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptSignIn();
+                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
             }
         });
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser == null) {
+            Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+            mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    attemptSignIn();
+                }
+            });
+        }
+        else {
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+            userRef = databaseReference.child("users").child(firebaseUser.getUid());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    user = dataSnapshot.getValue(User.class);
+
+                    // User info
+                    user_email = mEmailView.getText().toString();
+                    user_password = mPasswordView.getText().toString();
+
+                    Intent mainIntent = new Intent(SignInActivity.this, MainActivity.class);
+                    Boolean isSeller = user.getISSELLER();
+
+                    mainIntent.putExtra("email", user_email);
+                    mainIntent.putExtra("password", user_password);
+                    mainIntent.putExtra("isSeller", isSeller);
+
+                    if (isSeller) Log.d("ICP_SignIn", "is Seller!");
+                    else Log.d("ICP_SignIn", "is not Seller!");
+
+                    startActivity(mainIntent);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // TODO: 토스트나 뭐 아무거로 알려주기
+                    finish();
+                }
+            });
+        }
     }
 
     private void attemptSignIn() {
-
         // User info
-        String user_email = mEmailView.getText().toString();
-        String user_password = mPasswordView.getText().toString();
-        boolean isSeller = false; // default
+        user_email = mEmailView.getText().toString();
+        user_password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        boolean allowSignIn = false;
-        View focusView = null;
+        mAuth.signInWithEmailAndPassword(user_email, user_password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                            userRef = databaseReference.child("users").child(firebaseUser.getUid());
+                            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    user = dataSnapshot.getValue(User.class);
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(user_password) && !isPasswordValid(user_password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
+                                    Intent mainIntent = new Intent(SignInActivity.this, MainActivity.class);
+                                    Boolean isSeller = user.getISSELLER();
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(user_email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(user_email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+                                    mainIntent.putExtra("email", user_email);
+                                    mainIntent.putExtra("password", user_password);
+                                    mainIntent.putExtra("isSeller", isSeller);
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
+                                    if (isSeller) Log.d("ICP_SignIn", "is Seller!");
+                                    else Log.d("ICP_SignIn", "is not Seller!");
 
-            // Check one is Seller
-            for (String credential : SELLER_DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(user_email)) {
-                    // Account exists, return true if the password matches.
-                    if (pieces[1].equals(user_password)) {
-                        // Seller
-                        isSeller = true;
-                        allowSignIn = true;
+                                    startActivity(mainIntent);
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    // TODO: 토스트나 뭐 아무거로 알려주기
+                                    finish();
+                                }
+                            });
+                        } else {
+                            Toast.makeText(getApplicationContext(), "로그인에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
-            }
-
-            // Check one is Customer
-            for (String credential : CUSTOMER_DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if(pieces[0].equals(user_email)){
-                    allowSignIn = pieces[1].equals(user_password);
-                }
-            }
-
-            if (allowSignIn){
-                // Sign in is success
-                Intent mainIntent = new Intent(SignInActivity.this, MainActivity.class);
-                mainIntent.putExtra("email", user_email);
-                mainIntent.putExtra("password", user_password);
-                mainIntent.putExtra("isSeller", isSeller);
-                startActivity(mainIntent);
-                Toast.makeText(SignInActivity.this, "Your Sign in Successfully",Toast.LENGTH_SHORT).show();
-
-            }else{
-                // Sign in is fail
-                Toast.makeText(SignInActivity.this, "Your Email or Password is wrong!", Toast.LENGTH_SHORT).show();
-            }
-
-        }
-
+                });
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

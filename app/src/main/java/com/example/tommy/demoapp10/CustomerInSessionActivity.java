@@ -12,6 +12,8 @@ import android.widget.FrameLayout;
 
 import java.io.Serializable;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 public class CustomerInSessionActivity extends AppCompatActivity
         implements ChatFragment.CustomOnClickListener {
     final private static String TAG = CustomerInSessionActivity.class.getSimpleName();
@@ -24,10 +26,6 @@ public class CustomerInSessionActivity extends AppCompatActivity
     private String USER_EMAIL;
     private String CHAT_NAME;
 
-    /*private C_SessionNormalFragment csn = new C_SessionNormalFragment();
-    private C_SessionPListFragment cspl = new C_SessionPListFragment();
-    private C_SessionPCheckFragment cspc = new C_SessionPCheckFragment();*/
-
     private FrameLayout chatContainer;
     private FrameLayout streamSubscribeContainer;
     private FrameLayout productsContainer;
@@ -36,9 +34,6 @@ public class CustomerInSessionActivity extends AppCompatActivity
     private StreamSubscribeFragment ssf = new StreamSubscribeFragment();
     private ProductListFragment plf = new ProductListFragment();
     private ProductCheckFragment pcf =  new ProductCheckFragment();
-
-    // private ChatFragment cf = new ChatFragment();
-    // private StreamSubscribeFragment ssf = new StreamSubscribeFragment();
 
     Bundle bundle = new Bundle(); // bundle
 
@@ -73,6 +68,23 @@ public class CustomerInSessionActivity extends AppCompatActivity
         streamSubscribeContainer = (FrameLayout)findViewById(R.id.container_stream_subscribe);
         productsContainer = (FrameLayout)findViewById(R.id.container_products);
 
+        // Set StreamSubscribeContainer's OnClickListener (클릭되면 다시 채팅창이 맨 앞으로오고, 방송창이 full screen이 되며,
+        // productContainer가 화면에서 안보이게 됨.
+        streamSubscribeContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams)streamSubscribeContainer.getLayoutParams();
+                params.width = MATCH_PARENT;
+                params.height = MATCH_PARENT;
+                params.bottomMargin = 0;
+                params.rightMargin = 0;
+                chatContainer.setVisibility(View.VISIBLE);
+                productsContainer.setVisibility(View.INVISIBLE);
+                streamSubscribeContainer.bringToFront();
+                chatContainer.bringToFront();
+            }
+        });
+
         // Add C_SessionNormalFragment
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container_chat, cf);
@@ -94,6 +106,7 @@ public class CustomerInSessionActivity extends AppCompatActivity
             case R.id.product_list_btn: {
                 chatContainer.setVisibility(View.INVISIBLE);
                 productsContainer.bringToFront();
+                productsContainer.setVisibility(View.VISIBLE);
                 FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams)streamSubscribeContainer.getLayoutParams();
                 params.width = dpToPx(150, this);
                 params.height = dpToPx(250, this);
@@ -103,6 +116,5 @@ public class CustomerInSessionActivity extends AppCompatActivity
                 break;
             }
         }
-
     }
 }
