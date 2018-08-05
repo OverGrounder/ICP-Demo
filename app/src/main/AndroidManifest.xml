@@ -31,6 +31,7 @@
         <activity android:name=".SessionCreateActivity"/>
         <activity android:name=".CustomerInSessionActivity"/>
         <activity android:name=".SessionSetupActivity"/>
+        <service android:name=".SessionManagementService" />
     </application>
 
 </manifest>
