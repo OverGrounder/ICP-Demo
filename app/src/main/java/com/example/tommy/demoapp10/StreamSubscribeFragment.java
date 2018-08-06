@@ -3,6 +3,7 @@ package com.example.tommy.demoapp10;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +25,8 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 public class StreamSubscribeFragment extends Fragment {
 
     public StreamSubscribeFragment(){};
-    
+
+
     private String URL;
 
     @Override
@@ -34,30 +36,15 @@ public class StreamSubscribeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_stream_subscribe, container, false);
 
         URL = getArguments().getString("url");
+        char[] url = URL.toCharArray();
+        url[2] = 's';
+        URL = new String(url);
 
-        /*
-        initiate Player
-        Create a default TrackSelector
-        */
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        Log.d("ICP",URL);
 
-        //Create the player
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
-        PlayerView playerView = view.findViewById(R.id.stream_player);
-        playerView.setPlayer(player);
-
-        RtmpDataSourceFactory rtmpDataSourceFactory = new RtmpDataSourceFactory();
-        // This is the MediaSource representing the media to be played.
-        MediaSource videoSource = new ExtractorMediaSource.Factory(rtmpDataSourceFactory)
-                .createMediaSource(Uri.parse(URL));
-
-        // Prepare the player with the source.
-        player.prepare(videoSource);
-
-        //auto start playing
-        player.setPlayWhenReady(true);
+        VideoView videoView = view.findViewById(R.id.stream_player);
+        videoView.setVideoURI(Uri.parse(URL));
+        videoView.start();
         return view;
     }
 }
