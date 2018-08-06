@@ -54,6 +54,11 @@ public class BroadcastActivity extends AppCompatActivity
 
         final FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
+        Intent intent = getIntent();
+        Session session = intent.getParcelableExtra("session");
+        etUrl = session.getUrl();
+        SESSION_NAME = session.getSESSION_NAME();
+
         userRef = databaseReference.child("users").child(firebaseUser.getUid());
         Log.d("ICP_SignIn", "UID: " + userRef.getKey());
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -63,25 +68,25 @@ public class BroadcastActivity extends AppCompatActivity
                 assert user != null;
                 USER_NAME = user.getNAME();
                 USER_EMAIL = firebaseUser.getEmail();
+
+                Bundle chatBundle = new Bundle();
+                chatBundle.putString("chat_name", SESSION_NAME);
+                chatBundle.putString("user_email", USER_EMAIL);
+                chatBundle.putString("user_name", USER_NAME);
+                cf.setArguments(chatBundle);
+
+                chatContainer = findViewById(R.id.container_chat2);
+
+                // Add ChatFragment
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.container_chat2, cf);
+                ft.commit();
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-
-        Intent intent = getIntent();
-        Session session = intent.getParcelableExtra("session");
-        etUrl = session.getUrl();
-        SESSION_NAME = session.getSESSION_NAME();
-
-
-        Bundle chatBundle = new Bundle();
-        chatBundle.putString("chat_name", SESSION_NAME);
-        chatBundle.putString("user_email", USER_EMAIL);
-        chatBundle.putString("user_name", USER_NAME);
-        cf.setArguments(chatBundle);
-
-        chatContainer = (FrameLayout)findViewById(R.id.container_chat2);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_broadcast);
@@ -92,21 +97,19 @@ public class BroadcastActivity extends AppCompatActivity
         switchCamera.setOnClickListener(this);
         //Number of filters to use at same time.
         // You must modify it before create rtmp or rtsp object.
-        //ManagerRender.numFilters = 2;
+        // ManagerRender.numFilters = 2;
         rtmpCamera1 = new RtmpCamera1(openGlView, this);
         rtmpCamera1.getGlInterface().enableAA(!rtmpCamera1.getGlInterface().isAAEnabled());
+
         if (rtmpCamera1.isAudioMuted()) {
             rtmpCamera1.enableAudio();
         }
         if (!rtmpCamera1.isVideoEnabled()) {
             rtmpCamera1.enableVideo();
         }
+
         openGlView.getHolder().addCallback(this);
 
-        // Add ChatFragment
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.container_chat2, cf);
-        ft.commit();
     }
 
 
