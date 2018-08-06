@@ -36,19 +36,23 @@
             android:layout_weight="1"
             android:padding="8dp">
 
+            <ImageView
+                android:id="@+id/session_thumbnail"
+                android:src="@drawable/session_thumbnail_test"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"/>
+
             <TextView
                 android:id="@+id/live_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#ffffff"
                 android:layout_gravity="right"
+                android:layout_margin="8dp"
                 android:textSize="20sp"
                 android:text="LIVE"/>
-
-            <ImageView
-                android:id="@+id/session_thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
 
         </FrameLayout>
 
